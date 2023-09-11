@@ -1,2 +1,2 @@
 target:
-	g++ *.cpp -o out.exe
+	g++ *.cpp -O3 -o out.exe
