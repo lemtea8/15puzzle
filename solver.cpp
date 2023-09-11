@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <queue>
-#include <unordered_set>
+#include <unordered_map>
 
 class State {
   public:
@@ -42,8 +42,8 @@ std::vector<Direction> Solver::solve(Puzzle puzzle) {
     std::priority_queue<State *, std::vector<State *>, StateComparetor> pq;
     std::vector<State *> used;
 
-    // record visited states
-    std::unordered_set<uint64_t> visited;
+    // record visited states with its priority
+    std::unordered_map<uint64_t, int> visited;
     int walked = 0;
     int pq_max = 0;
 
@@ -58,7 +58,7 @@ std::vector<Direction> Solver::solve(Puzzle puzzle) {
         }
 
         State *curr = pq.top();
-        visited.insert(curr->get_bits());
+        visited[curr->get_bits()] = curr->walked + curr->heuristic;
         last = curr;
         walked = curr->walked + 1;
         pq.pop();
@@ -72,12 +72,15 @@ std::vector<Direction> Solver::solve(Puzzle puzzle) {
         for (auto dir : {UP, DOWN, LEFT, RIGHT}) {
             Puzzle tmp = p;
             tmp.move(dir);
-            // only append to queue if not visited
+
+            // only append to queue if not visited, or the value is smaller
             if (visited.count(tmp.get_bits()) == 0) {
-                State *next = new State(curr, tmp.get_bits(), walked,
-                                        tmp.heuristic(), dir);
-                pq.push(next);
-                visited.insert(tmp.get_bits());
+                if (visited[tmp.get_bits()] < curr->walked + curr->heuristic) {
+                    State *next = new State(curr, tmp.get_bits(), walked,
+                                            tmp.heuristic(), dir);
+                    pq.push(next);
+                    visited[tmp.get_bits()] = tmp.heuristic() + walked;
+                }
             }
         }
     }
@@ -100,6 +103,8 @@ std::vector<Direction> Solver::solve(Puzzle puzzle) {
     for (auto s : used) {
         delete s;
     }
+
+    std::cout << "pq max: " << pq_max << std::endl;
 
     return answer;
 }
