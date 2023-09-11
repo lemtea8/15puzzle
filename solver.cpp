@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <queue>
+#include <unordered_set>
 
 class State {
   public:
@@ -40,6 +41,9 @@ Solver::Solver() {}
 std::vector<Direction> Solver::solve(Puzzle puzzle) {
     std::priority_queue<State *, std::vector<State *>, StateComparetor> pq;
     std::vector<State *> used;
+
+    // record visited states
+    std::unordered_set<uint64_t> visited;
     int walked = 0;
     int pq_max = 0;
 
@@ -54,6 +58,7 @@ std::vector<Direction> Solver::solve(Puzzle puzzle) {
         }
 
         State *curr = pq.top();
+        visited.insert(curr->get_bits());
         last = curr;
         walked = curr->walked + 1;
         pq.pop();
@@ -67,9 +72,13 @@ std::vector<Direction> Solver::solve(Puzzle puzzle) {
         for (auto dir : {UP, DOWN, LEFT, RIGHT}) {
             Puzzle tmp = p;
             tmp.move(dir);
-            State *next =
-                new State(curr, tmp.get_bits(), walked, tmp.heuristic(), dir);
-            pq.push(next);
+            // only append to queue if not visited
+            if (visited.count(tmp.get_bits()) == 0) {
+                State *next = new State(curr, tmp.get_bits(), walked,
+                                        tmp.heuristic(), dir);
+                pq.push(next);
+                visited.insert(tmp.get_bits());
+            }
         }
     }
 
