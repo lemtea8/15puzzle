@@ -1,4 +1,5 @@
 #include "solver.hpp"
+#include "priority_queue.hpp"
 
 #include <algorithm>
 #include <cstdint>
@@ -32,14 +33,14 @@ class StateComparetor {
     bool operator()(const State *i, const State *j);
 };
 
-bool StateComparetor::operator()(const State *i, const State *j) {
-    return i->walked + i->heuristic > j->walked + j->heuristic;
+bool state_compare(State *i, State *j) {
+    return i->walked + i->heuristic < j->walked + j->heuristic;
 }
 
 Solver::Solver() {}
 
 std::vector<Direction> Solver::solve(Puzzle puzzle) {
-    std::priority_queue<State *, std::vector<State *>, StateComparetor> pq;
+    PriorityQueue<State *> pq(state_compare);
     std::vector<State *> used;
 
     // record visited states with its priority
