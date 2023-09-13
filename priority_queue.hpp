@@ -20,7 +20,7 @@ template <typename T> class PriorityQueue {
 
     void push(T t) {
         container.push_back(t);
-        heapify_bottomup();
+        heapify_bottomup(container.size() - 1);
     }
 
     T top() { return container[1]; }
@@ -37,43 +37,35 @@ template <typename T> class PriorityQueue {
     int size() { return container.size() - 1; }
 
   private:
-    void heapify_bottomup() {
-        int n = container.size() - 1;
-        while (n != 1 && compare(container[n], container[n / 2])) {
-            T temp;
-            temp = container[n];
-            container[n] = container[n / 2];
-            container[n / 2] = temp;
-            n /= 2;
+    void heapify_bottomup(int curr) {
+        T bottom = container[curr];
+        while (curr != 1 && compare(bottom, container[curr / 2])) {
+            container[curr] = container[curr / 2];
+            curr /= 2;
         }
+        container[curr] = bottom;
     }
 
-    void heapify_topdown(int n) {
-        int left = 2 * n, right = left + 1;
+    void heapify_topdown(int curr) {
         int size = container.size();
+        T root = container[curr];
+        int child;
 
-        while (true) {
-            int smaller = n;
-            if (left < size && compare(container[left], container[n])) {
-                smaller = left;
+        while (curr * 2 < size) {
+            // left
+            child = curr * 2;
+            // right
+            if (child < size && compare(container[child + 1], container[child])) {
+                child += 1;
             }
-            if (right < size && compare(container[right], container[smaller])) {
-                smaller = right;
-            }
-
-            if (smaller == n) {
+            if (compare(container[child], root)) {
+                container[curr] = container[child];
+            } else {
                 break;
             }
-
-            T temp;
-            temp = container[smaller];
-            container[smaller] = container[n];
-            container[n] = temp;
-
-            n = smaller;
-            left = 2 * n;
-            right = left + 1;
+            curr = child;
         }
+        container[curr] = root;
     }
 
     std::vector<T> container;
