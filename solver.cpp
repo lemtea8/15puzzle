@@ -28,11 +28,6 @@ class State {
     uint64_t bits;
 };
 
-class StateComparetor {
-  public:
-    bool operator()(const State *i, const State *j);
-};
-
 bool state_compare(State *i, State *j) {
     return i->walked + i->heuristic < j->walked + j->heuristic;
 }
@@ -59,7 +54,6 @@ std::vector<Direction> Solver::solve(Puzzle puzzle) {
         }
 
         State *curr = pq.top();
-        visited[curr->get_bits()] = curr->walked + curr->heuristic;
         last = curr;
         walked = curr->walked + 1;
         pq.pop();
@@ -73,14 +67,18 @@ std::vector<Direction> Solver::solve(Puzzle puzzle) {
         for (auto dir : {UP, DOWN, LEFT, RIGHT}) {
             Puzzle tmp = p;
             tmp.move(dir);
+            State *next =
+                new State(curr, tmp.get_bits(), walked, tmp.heuristic(), dir);
 
-            // only append to queue if not visited, or the value is smaller
+            // if not visited before
             if (visited.count(tmp.get_bits()) == 0) {
-                if (visited[tmp.get_bits()] < curr->walked + curr->heuristic) {
-                    State *next = new State(curr, tmp.get_bits(), walked,
-                                            tmp.heuristic(), dir);
+                pq.push(next);
+                visited[tmp.get_bits()] = walked;
+            } else {
+                // update if the path is shorter
+                if (curr->walked < visited[tmp.get_bits()]) {
+                    visited[tmp.get_bits()] = walked;
                     pq.push(next);
-                    visited[tmp.get_bits()] = tmp.heuristic() + walked;
                 }
             }
         }
