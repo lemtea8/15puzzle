@@ -23,6 +23,10 @@ template <typename T> class PriorityQueue {
         heapify_bottomup(container.size() - 1);
     }
 
+    void clear() {
+        container.clear();
+    }
+
     T top() { return container[1]; }
 
     void pop() {
