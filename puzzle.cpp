@@ -16,13 +16,6 @@ Puzzle::Puzzle(const std::string &input) {
     }
 }
 
-// // returns the element of xth row and yth column
-// uint8_t Puzzle::at(int x, int y) {
-//     int offset = (x * 4 + y) * 4;
-//     uint64_t mask = uint64_t(0b1111) << offset;
-//     return (Puzzle & mask) >> offset;
-// }
-
 uint8_t Puzzle::at(int n) {
     uint64_t mask = uint64_t(0b1111) << (n * 4);
     return (this->bits & mask) >> (n * 4);
@@ -62,25 +55,28 @@ std::string Puzzle::to_visualize_string() {
     return str;
 }
 
+// https://en.wikipedia.org/wiki/15_puzzle#solvability:~:text=%5Bedit%5D-,Solvability,-%5Bedit%5D
 bool Puzzle::solvable() {
-    int count = 0;
+    int inversion_count = 0;
+    int zero_position = 0;
     for (int i = 0; i < 16; i++) {
         if (at(i) == 0) {
-            count += (i + 1) / 4; // row of 0
+            zero_position = i;
             break;
         }
     }
-    for (uint32_t i = 0; i < 16; i++) {
+    for (uint32_t i = 0; i < 15; i++) {
         if (at(i) == 0) {
             continue;
         }
         for (uint32_t j = i + 1; j < 16; j++) {
             if (at(j) != 0 && at(i) > at(j)) {
-                count++;
+                inversion_count++;
             }
         }
     }
-    return (count % 2 == 0);
+    int zero_row = zero_position / 4;
+    return ((zero_row + inversion_count) % 2 != 0);
 }
 
 // Goal is "123456789ABCDEF0"
@@ -100,19 +96,20 @@ int manhattan_distance(int i, int j) {
     return abs(ix - jx) + abs(iy - jy);
 }
 
-#include <iostream>
-
 int Puzzle::heuristic() {
     int val = 0;
     for (int i = 0; i < 16; i++) {
         uint8_t c = this->at(i);
         // does not include 0
         if (c != 0) {
-            // std::cout << int(c) << " " << i+1 << " " << manhattan_distance(c-1, i) << std::endl;;
             val += manhattan_distance(c-1, i);
         }
     }
     return val;
+}
+
+bool Puzzle::equal(Puzzle p2) {
+    return this->bits == p2.bits;
 }
 
 // if it's invalid, doesn't do anything

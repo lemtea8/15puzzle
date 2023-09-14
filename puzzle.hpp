@@ -17,6 +17,7 @@ class Puzzle {
     int heuristic();
     bool solvable();
     bool is_goal();
+    bool equal(Puzzle p2);
     void move(Direction dir);
     std::string to_string();
     std::string to_visualize_string();
