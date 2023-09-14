@@ -27,7 +27,7 @@ void print_answer(std::vector<Direction> &answer) {
             std::cout << " ";
         }
     }
-    std::cout << ", " << answer.size() << " steps" << std::endl;
+    std::cout << ", " << answer.size() << " moves" << std::endl;
 }
 
 int main() {
