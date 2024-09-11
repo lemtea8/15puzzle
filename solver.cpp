@@ -1,109 +1,67 @@
 #include "solver.hpp"
-#include "priority_queue.hpp"
 
-#include <algorithm>
+#include <climits>
 #include <cstdint>
-#include <cstdlib>
 #include <iostream>
-#include <queue>
-#include <unordered_map>
 
-class State {
-  public:
-    State(State *parent, uint64_t bits, int walked, int heuristic,
-          Direction dir) {
-        this->parent = parent;
-        this->bits = bits;
-        this->walked = walked;
-        this->heuristic = heuristic;
-        this->dir = dir;
+const int FOUND = -1;
+
+Solver::Solver() { this->count = 0; }
+
+int Solver::dfs(Puzzle p, std::vector<Direction> &path,
+                std::unordered_set<uint64_t> &visited, int walked, int limit) {
+    this->count++;
+    int h = p.heuristic();
+    int f = walked + h;
+
+    if (f > limit) {
+        return f;
     }
-    uint64_t get_bits() { return this->bits; }
-    int heuristic;
-    int walked;
-    State *parent;
-    Direction dir;
+    if (p.is_goal()) {
+        return FOUND;
+    }
 
-  private:
-    uint64_t bits;
-};
-
-bool state_compare(State *i, State *j) {
-    return i->walked + i->heuristic < j->walked + j->heuristic;
+    int min = INT_MAX;
+    for (auto dir : {UP, DOWN, LEFT, RIGHT}) {
+        Puzzle tmp = p;
+        if (!tmp.move(dir)) {
+            continue;
+        }
+        if (visited.count(tmp.get_bits()) != 0) {
+            continue;
+        }
+        path.push_back(dir);
+        visited.insert(tmp.get_bits());
+        int res = dfs(tmp, path, visited, walked + 1, limit);
+        if (res == FOUND) {
+            return FOUND;
+        }
+        path.pop_back();
+        visited.erase(tmp.get_bits());
+        if (res < min) {
+            min = res;
+        }
+    }
+    return min;
 }
 
-Solver::Solver() {}
-
 std::vector<Direction> Solver::solve(Puzzle puzzle) {
-    PriorityQueue<State *> pq(state_compare);
-    std::vector<State *> used;
+    int t = puzzle.heuristic();
+    // act like a stack
+    std::vector<Direction> path;
+    // check if it's already visited within the path
+    std::unordered_set<uint64_t> visited;
+    this->count = 0;
 
-    // record visited states with its priority
-    std::unordered_map<uint64_t, int> visited;
-    int walked = 0;
-    int pq_max = 0;
-
-    State *root =
-        new State(nullptr, puzzle.get_bits(), walked, puzzle.heuristic(), UP);
-    pq.push(root);
-    State *last = nullptr;
-
-    while (!pq.empty()) {
-        if (pq.size() > pq_max) {
-            pq_max = pq.size();
-        }
-
-        State *curr = pq.top();
-        last = curr;
-        walked = curr->walked + 1;
-        pq.pop();
-        used.push_back(curr);
-
-        Puzzle p(curr->get_bits());
-        if (p.is_goal()) {
-            break;
-        }
-
-        for (auto dir : {UP, DOWN, LEFT, RIGHT}) {
-            Puzzle tmp = p;
-            tmp.move(dir);
-            State *next =
-                new State(curr, tmp.get_bits(), walked, tmp.heuristic(), dir);
-
-            // if not visited before
-            if (visited.count(tmp.get_bits()) == 0) {
-                pq.push(next);
-                visited[tmp.get_bits()] = walked;
-            } else {
-                // update if the path is shorter
-                if (curr->walked < visited[tmp.get_bits()]) {
-                    visited[tmp.get_bits()] = walked;
-                    pq.push(next);
-                }
-            }
-        }
-    }
-
-    std::vector<Direction> answer;
+    // IDA*
     while (true) {
-        if (last->parent == nullptr) {
+        std::cout << "\rdepth: " << t << std::flush;
+        t = dfs(puzzle, path, visited, 0, t);
+        if (t == FOUND) {
             break;
         }
-        answer.push_back(last->dir);
-        last = last->parent;
     }
-    std::reverse(answer.begin(), answer.end());
+    std::cout << std::endl << "nodes count: " << count << std::endl;
 
-    while (!pq.empty()) {
-        State *s = pq.top();
-        pq.pop();
-        delete s;
-    }
-    for (auto s : used) {
-        delete s;
-    }
-
-    std::cout << "pq max: " << pq_max << std::endl;
-
-    return answer;
+    return path;
 }
