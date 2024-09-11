@@ -1,5 +1,5 @@
 # 15 puzzle solver
-An optimal 15 puzzle solver using A* algorithm with Manhattan distance as heuristic.  
+An 15 puzzle solver using A* algorithm with Manhattan distance as heuristic to find optimal solution.  
 This implementation is unable to solve puzzles that need more than ~60 moves, as it requires too much memory.  
 
 # Test inputs:
