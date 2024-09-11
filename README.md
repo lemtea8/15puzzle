@@ -3,7 +3,7 @@ An optimal 15 puzzle solver using A* algorithm with Manhattan distance as heuris
 This implementation is unable to solve puzzles that need more than ~60 moves, as it requires too much memory.  
 
 # Test inputs:
-a~f stands for 10~15, 0 stands for the blank tile   
+a\~f stands for 10\~15, 0 stands for the blank tile   
 - 2348170c56ab9def (15 moves)
 - 51309af4d7b826ec (25 moves)
 - 1f3452d8a70b96ec (30 moves)
