@@ -1,6 +1,5 @@
 # 15 puzzle solver
-An 15 puzzle solver using A* algorithm with Manhattan distance as heuristic to find optimal solution.  
-This implementation is unable to solve puzzles that need more than ~60 moves, as it requires too much memory.  
+An 15 puzzle solver using IDA* algorithm with Manhattan distance as heuristic to find optimal solution.  
 
 # Test inputs:
 a\~f stands for 10\~15, 0 stands for the blank tile   
@@ -11,4 +10,4 @@ a\~f stands for 10\~15, 0 stands for the blank tile
 - 1f345dc8796eab20 (44 moves)
 - 0bd45c329671af8e (50 moves)
 - 58d9ebc1324a70f6 (56 moves)
-- 0291ca8d6574feb3 (60 moves, unsolvable with 8GiB memory)
+- 38abfe7951024c6d (58 moves)
