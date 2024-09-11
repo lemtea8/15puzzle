@@ -18,13 +18,16 @@ class Puzzle {
     bool solvable();
     bool is_goal();
     bool equal(Puzzle p2);
-    void move(Direction dir);
+    bool move(Direction dir);
     std::string to_string();
     std::string to_visualize_string();
     uint64_t get_bits();
 
   private:
+    int zero_position;
     uint64_t bits;
+
+    int find_zero_position();
 };
 
 #endif

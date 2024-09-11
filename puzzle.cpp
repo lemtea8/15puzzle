@@ -14,6 +14,7 @@ Puzzle::Puzzle(const std::string &input) {
         // each cell takes four bits (0~F)
         this->bits |= num << (i * 4);
     }
+    this->zero_position = find_zero_position();
 }
 
 uint8_t Puzzle::at(int n) {
@@ -58,13 +59,6 @@ std::string Puzzle::to_visualize_string() {
 // https://en.wikipedia.org/wiki/15_puzzle#solvability:~:text=%5Bedit%5D-,Solvability,-%5Bedit%5D
 bool Puzzle::solvable() {
     int inversion_count = 0;
-    int zero_position = 0;
-    for (int i = 0; i < 16; i++) {
-        if (at(i) == 0) {
-            zero_position = i;
-            break;
-        }
-    }
     for (uint32_t i = 0; i < 15; i++) {
         if (at(i) == 0) {
             continue;
@@ -75,12 +69,16 @@ bool Puzzle::solvable() {
             }
         }
     }
-    int zero_row = zero_position / 4;
+    int zero_row = this->zero_position / 4;
     return ((zero_row + inversion_count) % 2 != 0);
 }
 
 // Goal is "123456789ABCDEF0"
 bool Puzzle::is_goal() {
+    // quick check
+    if (zero_position != 15) {
+        return false;
+    }
     // skip the last one (0)
     for (int i = 0; i < 15; i++) {
         if (at(i) != i + 1) {
@@ -102,49 +100,61 @@ int Puzzle::heuristic() {
         uint8_t c = this->at(i);
         // does not include 0
         if (c != 0) {
-            val += manhattan_distance(c-1, i);
+            val += manhattan_distance(c - 1, i);
         }
     }
     return val;
 }
 
-bool Puzzle::equal(Puzzle p2) {
-    return this->bits == p2.bits;
-}
+bool Puzzle::equal(Puzzle p2) { return this->bits == p2.bits; }
 
-// if it's invalid, doesn't do anything
-void Puzzle::move(Direction dir) {
-    // find where is "0"
-    int p0 = 0;
+int Puzzle::find_zero_position() {
     for (int i = 0; i < 16; i++) {
         if (this->at(i) == 0) {
-            p0 = i;
-            break;
+            return i;
         }
     }
+    return -1;
+}
+
+// returns false if the move is invalid
+bool Puzzle::move(Direction dir) {
+    int p0 = this->zero_position;
 
     switch (dir) {
     case UP:
         if (p0 + 4 < 16) {
             this->swap(p0, p0 + 4);
+            this->zero_position = p0 + 4;
+            return true;
+        } else {
+            return false;
         }
-        break;
     case DOWN:
         if (p0 - 4 >= 0) {
             this->swap(p0, p0 - 4);
+            this->zero_position = p0 - 4;
+            return true;
+        } else {
+            return false;
         }
-        break;
     case LEFT:
         if ((p0 + 1 < 16) && ((p0 + 1) % 4 != 0)) {
             this->swap(p0, p0 + 1);
+            this->zero_position = p0 + 1;
+            return true;
+        } else {
+            return false;
         }
-        break;
     case RIGHT:
         if ((p0 - 1 >= 0) && (p0 % 4 != 0)) {
             this->swap(p0, p0 - 1);
+            this->zero_position = p0 - 1;
+            return true;
+        } else {
+            return false;
         }
-        break;
     default:
-        break;
+        return false;
     }
 }
