@@ -11,3 +11,4 @@ a\~f stands for 10\~15, 0 stands for the blank tile
 - 0bd45c329671af8e (50 moves)
 - 58d9ebc1324a70f6 (56 moves)
 - 38abfe7951024c6d (58 moves)
+- cbfed67a13248095 (64 moves)
