@@ -82,17 +82,7 @@ bool Puzzle::solvable() {
 
 // Goal is "123456789ABCDEF0"
 bool Puzzle::is_goal() {
-    // quick check
-    if (zero_position != 15) {
-        return false;
-    }
-    // skip the last one (0)
-    for (int i = 0; i < 15; i++) {
-        if (at(i) != i + 1) {
-            return false;
-        }
-    }
-    return true;
+    return this->bits == uint64_t(0x0FEDCBA987654321);
 }
 
 int manhattan_distance(int i, int j) {
