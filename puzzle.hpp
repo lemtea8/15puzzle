@@ -17,7 +17,6 @@ class Puzzle {
     int heuristic();
     bool solvable();
     bool is_goal();
-    bool equal(Puzzle p2);
     bool move(Direction dir);
     std::string to_string();
     std::string to_visualize_string();
@@ -25,8 +24,10 @@ class Puzzle {
 
   private:
     int zero_position;
+    int heuristic_v;
     uint64_t bits;
 
+    int calculate_heuristic();
     int find_zero_position();
 };
 

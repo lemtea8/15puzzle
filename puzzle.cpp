@@ -1,9 +1,15 @@
 #include "puzzle.hpp"
 #include "hex.hpp"
 
-Puzzle::Puzzle() { this->bits = 0; }
+Puzzle::Puzzle() {
+    this->bits = 0;
+    this->heuristic_v = 0;
+}
 
-Puzzle::Puzzle(uint64_t bits) { this->bits = bits; }
+Puzzle::Puzzle(uint64_t bits) {
+    this->bits = bits;
+    this->heuristic_v = calculate_heuristic();
+}
 
 // "0" stands for the blank
 Puzzle::Puzzle(const std::string &input) {
@@ -15,6 +21,7 @@ Puzzle::Puzzle(const std::string &input) {
         this->bits |= num << (i * 4);
     }
     this->zero_position = find_zero_position();
+    this->heuristic_v = calculate_heuristic();
 }
 
 uint8_t Puzzle::at(int n) {
@@ -94,7 +101,9 @@ int manhattan_distance(int i, int j) {
     return abs(ix - jx) + abs(iy - jy);
 }
 
-int Puzzle::heuristic() {
+int Puzzle::heuristic() { return this->heuristic_v; }
+
+int Puzzle::calculate_heuristic() {
     int val = 0;
     for (int i = 0; i < 16; i++) {
         uint8_t c = this->at(i);
@@ -105,8 +114,6 @@ int Puzzle::heuristic() {
     }
     return val;
 }
-
-bool Puzzle::equal(Puzzle p2) { return this->bits == p2.bits; }
 
 int Puzzle::find_zero_position() {
     for (int i = 0; i < 16; i++) {
@@ -120,41 +127,44 @@ int Puzzle::find_zero_position() {
 // returns false if the move is invalid
 bool Puzzle::move(Direction dir) {
     int p0 = this->zero_position;
+    int new_p0;
 
     switch (dir) {
     case UP:
-        if (p0 + 4 < 16) {
-            this->swap(p0, p0 + 4);
-            this->zero_position = p0 + 4;
-            return true;
-        } else {
+        new_p0 = p0 + 4;
+        if (new_p0 >= 16) {
             return false;
         }
+        break;
     case DOWN:
-        if (p0 - 4 >= 0) {
-            this->swap(p0, p0 - 4);
-            this->zero_position = p0 - 4;
-            return true;
-        } else {
+        new_p0 = p0 - 4;
+        if (new_p0 < 0) {
             return false;
         }
+        break;
     case LEFT:
-        if ((p0 + 1 < 16) && ((p0 + 1) % 4 != 0)) {
-            this->swap(p0, p0 + 1);
-            this->zero_position = p0 + 1;
-            return true;
-        } else {
+        new_p0 = p0 + 1;
+        // not movable if zero is at the right most column
+        if ((new_p0 >= 16) || (new_p0 % 4 == 0)) {
             return false;
         }
+        break;
     case RIGHT:
-        if ((p0 - 1 >= 0) && (p0 % 4 != 0)) {
-            this->swap(p0, p0 - 1);
-            this->zero_position = p0 - 1;
-            return true;
-        } else {
+        new_p0 = p0 - 1;
+        // not movable if zero is at the left most column
+        if ((new_p0 < 0) || ((new_p0 + 1) % 4 == 0)) {
             return false;
         }
+        break;
     default:
         return false;
     }
+
+    int tile = at(new_p0) - 1;
+    this->heuristic_v -= manhattan_distance(tile, new_p0);
+    this->swap(p0, new_p0);
+    this->zero_position = new_p0;
+    this->heuristic_v += manhattan_distance(tile, p0);
+
+    return true;
 }
