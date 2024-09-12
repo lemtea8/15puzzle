@@ -27,16 +27,17 @@ int Solver::dfs(Puzzle p, int walked, int limit) {
         if (!tmp.move(dir)) {
             continue;
         }
-        if (this->visited.count(tmp.get_bits()) != 0) {
+        auto iter = std::find(this->visited.begin(), this->visited.end(), tmp.get_bits());
+        if (iter != this->visited.end()) {
             continue;
         }
-        this->visited.insert(tmp.get_bits());
+        this->visited.push_back(tmp.get_bits());
         int res = dfs(tmp, walked + 1, limit);
         if (res == FOUND) {
             this->path.push_back(dir);
             return FOUND;
         }
-        this->visited.erase(tmp.get_bits());
+        this->visited.pop_back();
         if (res < min) {
             min = res;
         }
@@ -53,13 +54,13 @@ std::vector<Direction> Solver::solve(Puzzle puzzle) {
 
     // IDA*
     while (true) {
-        std::cout << "\rdepth: " << t << std::flush;
+        std::cout << "\rdepth: " << t << ", nodes: " << count << std::flush;
         t = dfs(puzzle, 0, t);
         if (t == FOUND) {
             break;
         }
     }
-    std::cout << std::endl << "nodes count: " << count << std::endl;
+    std::cout << std::endl;
     std::reverse(this->path.begin(), this->path.end());
 
     return this->path;

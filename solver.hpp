@@ -13,12 +13,11 @@ class Solver {
     std::vector<Direction> solve(Puzzle puzzle);
 
   private:
-    int count;
-    uint size;
+    uint64_t count;
     Puzzle puzzle;
     std::vector<Direction> path;
     // for checking if it's already visited within the path
-    std::unordered_set<uint64_t> visited;
+    std::vector<uint64_t> visited;
 
     int dfs(Puzzle p, int walked, int limit);
 };
