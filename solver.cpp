@@ -1,5 +1,6 @@
 #include "solver.hpp"
 
+#include <algorithm>
 #include <climits>
 #include <cstdint>
 #include <iostream>
@@ -8,8 +9,7 @@ const int FOUND = -1;
 
 Solver::Solver() { this->count = 0; }
 
-int Solver::dfs(Puzzle p, std::vector<Direction> &path,
-                std::unordered_set<uint64_t> &visited, int walked, int limit) {
+int Solver::dfs(Puzzle p, int walked, int limit) {
     this->count++;
     int h = p.heuristic();
     int f = walked + h;
@@ -27,17 +27,16 @@ int Solver::dfs(Puzzle p, std::vector<Direction> &path,
         if (!tmp.move(dir)) {
             continue;
         }
-        if (visited.count(tmp.get_bits()) != 0) {
+        if (this->visited.count(tmp.get_bits()) != 0) {
             continue;
         }
-        path.push_back(dir);
-        visited.insert(tmp.get_bits());
-        int res = dfs(tmp, path, visited, walked + 1, limit);
+        this->visited.insert(tmp.get_bits());
+        int res = dfs(tmp, walked + 1, limit);
         if (res == FOUND) {
+            this->path.push_back(dir);
             return FOUND;
         }
-        path.pop_back();
-        visited.erase(tmp.get_bits());
+        this->visited.erase(tmp.get_bits());
         if (res < min) {
             min = res;
         }
@@ -46,22 +45,22 @@ int Solver::dfs(Puzzle p, std::vector<Direction> &path,
 }
 
 std::vector<Direction> Solver::solve(Puzzle puzzle) {
-    int t = puzzle.heuristic();
-    // act like a stack
-    std::vector<Direction> path;
-    // check if it's already visited within the path
-    std::unordered_set<uint64_t> visited;
+    this->path.clear();
+    this->visited.clear();
     this->count = 0;
+
+    int t = puzzle.heuristic();
 
     // IDA*
     while (true) {
         std::cout << "\rdepth: " << t << std::flush;
-        t = dfs(puzzle, path, visited, 0, t);
+        t = dfs(puzzle, 0, t);
         if (t == FOUND) {
             break;
         }
     }
     std::cout << std::endl << "nodes count: " << count << std::endl;
+    std::reverse(this->path.begin(), this->path.end());
 
-    return path;
+    return this->path;
 }
