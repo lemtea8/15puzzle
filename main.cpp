@@ -27,7 +27,7 @@ void print_answer(std::vector<Direction> &answer) {
             std::cout << " ";
         }
     }
-    std::cout << ", " << answer.size() << " moves" << std::endl;
+    std::cout << std::endl;
 }
 
 int main() {
@@ -46,8 +46,7 @@ int main() {
         auto end = std::chrono::high_resolution_clock::now();
 
         auto duration =
-            std::chrono::duration_cast<std::chrono::milliseconds>(end -
-            start);
+            std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
         print_answer(ans);
         std::cout << "time:" << duration.count() << "ms" << std::endl;

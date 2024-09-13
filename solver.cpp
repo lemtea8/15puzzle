@@ -50,17 +50,18 @@ std::vector<Direction> Solver::solve(Puzzle puzzle) {
     this->visited.clear();
     this->count = 0;
 
-    int t = puzzle.heuristic();
+    int budget = puzzle.heuristic();
 
     // IDA*
     while (true) {
-        std::cout << "\rdepth: " << t << ", nodes: " << count << std::flush;
-        t = dfs(puzzle, 0, t);
-        if (t == FOUND) {
+        std::cout << "\rdepth: " << budget << ", nodes: " << count << std::flush;
+        int new_budget = dfs(puzzle, 0, budget);
+        if (new_budget == FOUND) {
+            std::cout << "\rdepth: " << budget << ", nodes: " << count << std::endl;
             break;
         }
+        budget = new_budget;
     }
-    std::cout << std::endl;
     std::reverse(this->path.begin(), this->path.end());
 
     return this->path;
