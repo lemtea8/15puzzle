@@ -1,7 +1,6 @@
 #include <chrono>
 #include <iostream>
 
-#include "hex.hpp"
 #include "puzzle.hpp"
 #include "solver.hpp"
 

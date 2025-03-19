@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <climits>
-#include <cstdint>
 #include <iostream>
 
 const int FOUND = -1;

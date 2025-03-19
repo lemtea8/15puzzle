@@ -1,7 +1,6 @@
 #ifndef __SOLVER_HPP__
 #define __SOLVER_HPP__
 
-#include <unordered_set>
 #include <vector>
 
 #include "direction.hpp"
