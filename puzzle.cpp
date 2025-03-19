@@ -25,8 +25,7 @@ Puzzle::Puzzle(const std::string &input) {
 }
 
 uint8_t Puzzle::at(int n) {
-    uint64_t mask = uint64_t(0b1111) << (n * 4);
-    return (this->bits & mask) >> (n * 4);
+    return (this->bits >> (n * 4)) & 0b1111;
 }
 
 void Puzzle::set(int n, uint8_t val) {
